@@ -8,11 +8,8 @@ class Application:
 
         self.pages = {
             'portal': self.portal,
-            'pagina': self.pagina,
             'create': self.create,
-            'delete': self.delete,
-            'chat': self.chat,
-            'edit': self.edit
+            'login': self.login,
         }
         self.__users = UserRecord()
         self.__messages = MessageRecord()
@@ -43,36 +40,16 @@ class Application:
         def favicon():
             return static_file('favicon.ico', root='.app/static')
 
-        @self.app.route('/pagina', method='GET')
-        def pagina_getter():
-            return self.render('pagina')
-
-        @self.app.route('/chat', method='GET')
-        def chat_getter():
-            return self.render('chat')
-
         @self.app.route('/')
         @self.app.route('/portal', method='GET')
         def portal_getter():
             return self.render('portal')
-
-        @self.app.route('/edit', method='GET')
-        def edit_getter():
-            return self.render('edit')
 
         @self.app.route('/portal', method='POST')
         def portal_action():
             username = request.forms.get('username')
             password = request.forms.get('password')
             self.authenticate_user(username, password)
-
-        @self.app.route('/edit', method='POST')
-        def edit_action():
-            username = request.forms.get('username')
-            password = request.forms.get('password')
-            print(username + ' sendo atualizado...')
-            self.update_user(username, password)
-            return self.render('edit')
 
         @self.app.route('/create', method='GET')
         def create_getter():
@@ -82,6 +59,7 @@ class Application:
         def create_action():
             username = request.forms.get('username')
             password = request.forms.get('password')
+            email = request.form.get('email')
             self.insert_user(username, password)
             return self.render('portal')
 
@@ -89,16 +67,6 @@ class Application:
         def logout_action():
             self.logout_user()
             return self.render('portal')
-
-        @self.app.route('/delete', method='GET')
-        def delete_getter():
-            return self.render('delete')
-
-        @self.app.route('/delete', method='POST')
-        def delete_action():
-            self.delete_user()
-            return self.render('portal')
-
 
     # método controlador de acesso às páginas:
     def render(self, page, parameter=None):
