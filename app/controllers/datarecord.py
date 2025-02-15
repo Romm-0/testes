@@ -4,8 +4,8 @@ import json
 import uuid
 
 
-class MessageRecord():
-    """Banco de dados JSON para o recurso: Mensagem"""
+class PostRecord():
+    """Banco de dados JSON para o recurso: Posts"""
 
     def __init__(self):
         self.__user_messages= []
@@ -104,7 +104,7 @@ class UserRecord():
     def book(self, username, password, permissions):
         account_type = 'super_accounts' if permissions else 'user_accounts'
         account_class = SuperAccount if permissions else UserAccount
-        new_user = account_class(username, password, permissions) if permissions else account_class(username, password)
+        new_user = account_class(username, password,email, permissions) if permissions else account_class(username, password, email)
         self.__allusers[account_type].append(new_user)
         self.__write(account_type)
         return new_user.username
