@@ -94,44 +94,47 @@
 </head>
 <body>
     <header>
-        <div class="user-name">Usuário</div>
+        <div class="user-name"> {{current_user.username}} </div>
         <div class="auth-buttons">
-            <button aria-label="Fazer Login">Login</button>
-            <button aria-label="Criar Conta">Criar Conta</button>
+            <form action="/login' method="get">
+                <button aria-label="Fazer Login">Login</button>
+            <form action="/create" method="get">
+                <button aria-label="Criar Conta">Criar Conta</button>
         </div>
     </header>
     <main id="content">
         <div class="post">
             <div class="description">Descrição do Trabalho</div>
             <div class="actions">
-                <button aria-label="Enviar Email">Enviar Email</button>
-                <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
+                <form action="/email" method="get">
+                    <button aria-label="Enviar Email">Enviar Email</button>
+                <form action="/proposta" method="post">
+                    <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
             </div>
         </div>
     </main>
     <script>
         let page = 1;
 
-        // Função que cria um novo post
         function createPost() {
             const post = document.createElement('div');
             post.classList.add('post');
             post.innerHTML = `
-                <div class="description">Descrição do Trabalho ${page}</div>
+                <div class="description">Descrição do Trabalho: {{message.content}}</div>
                 <div class="actions">
-                    <button aria-label="Enviar Email">Enviar Email</button>
-                    <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
+                    <form action="/email" method="get">
+                        <button aria-label="Enviar Email">Enviar Email</button>
+                    <form action="/proposta" method="post">
+                        <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
                 </div>
             `;
             document.getElementById('content').appendChild(post);
         }
 
-        // Carregar posts iniciais
         for (let i = 0; i < 5; i++) {
             createPost();
         }
 
-        // Função que detecta quando o usuário chega ao fim da página
         function checkScroll() {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             if (scrollTop + clientHeight >= scrollHeight - 5) {
