@@ -94,12 +94,14 @@
 </head>
 <body>
     <header>
-        <div class="user-name"> {{current_user.username}} </div>
+        <div class="user-name">{{ current_user.username }}</div>
         <div class="auth-buttons">
-            <form action="/login' method="get">
+            <form action="/login" method="get">
                 <button aria-label="Fazer Login">Login</button>
+            </form>
             <form action="/create" method="get">
                 <button aria-label="Criar Conta">Criar Conta</button>
+            </form>
         </div>
     </header>
     <main id="content">
@@ -108,8 +110,10 @@
             <div class="actions">
                 <form action="/email" method="get">
                     <button aria-label="Enviar Email">Enviar Email</button>
+                </form>
                 <form action="/proposta" method="post">
                     <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
+                </form>
             </div>
         </div>
     </main>
@@ -120,12 +124,14 @@
             const post = document.createElement('div');
             post.classList.add('post');
             post.innerHTML = `
-                <div class="description">Descrição do Trabalho: {{message.content}}</div>
+                <div class="description">Descrição do Trabalho</div>
                 <div class="actions">
                     <form action="/email" method="get">
                         <button aria-label="Enviar Email">Enviar Email</button>
+                    </form>
                     <form action="/proposta" method="post">
                         <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
+                    </form>
                 </div>
             `;
             document.getElementById('content').appendChild(post);
@@ -150,3 +156,4 @@
     </script>
 </body>
 </html>
+
