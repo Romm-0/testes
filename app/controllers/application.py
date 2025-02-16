@@ -60,13 +60,25 @@ class Application:
             username = request.forms.get('username')
             password = request.forms.get('password')
             email = request.form.get('email')
-            self.insert_user(username, password)
+            self.insert_user(username, password, email)
             return self.render('portal')
+            
+        @self.app.route('/login', method='POST')
+        def login_getter():
+            username = request.forms.get('username')
+            password = request.forms.get('password')
+            self.authenticate_user(username, password)
+            return template('app/views/html/login')
 
         @self.app.route('/logout', method='POST')
         def logout_action():
             self.logout_user()
             return self.render('portal')
+        
+        @self.app.route('/email', method='GET')
+        def send_email():
+            mailto_link = f"mailto:{request.forms.get('email')}"
+            redirect(mailto_link)
 
     # método controlador de acesso às páginas:
     def render(self, page, parameter=None):
@@ -95,22 +107,34 @@ class Application:
         current_user = self.getCurrentUserBySessionId()
         user_accounts= self.__users.getUserAccounts()
         return template('app/views/html/edit', user=current_user, accounts= user_accounts)
-
+        
+    def login(self):
+        current_user = self.getCurrentUserBySessionId()
+        #if current_user:
+            #redirect('/portal')
+        username = request.forms.get('username')
+        password = request.forms.get('password')
+        if username and password:
+            session_id = self.__users.checkUser(username, password)
+            if session_id:
+                response.set_cookie('session_id', session_id, httponly=True, secure=True, max_age=3600)
+                redirect('/portal')
+            else:
+                error_message = "Invalid username or password"
+                return template('app/views/html/login', error_message=error_message)
+        return template('app/views/html/login')
+        
     def portal(self):
         current_user = self.getCurrentUserBySessionId()
-        if current_user:
-            portal_render = template('app/views/html/portal', \
-            username=current_user.username, edited=self.edited, \
-            removed=self.removed, created=self.created)
-            self.edited = None
-            self.removed= None
-            self.created= None
-            return portal_render
-        portal_render = template('app/views/html/portal', username=None, \
-        edited=self.edited, removed=self.removed, created=self.created)
+        portal_render = template('app/views/html/portal', 
+                             current_user=current_user, 
+                             edited=self.edited, 
+                             removed=self.removed, 
+                             created=self.created)
+    
         self.edited = None
-        self.removed= None
-        self.created= None
+        self.removed = None
+        self.created = None
         return portal_render
 
     def pagina(self):
