@@ -63,6 +63,7 @@
         <h2>Criar Conta</h2>
         <form>
             <div class="form-group">
+              <form action="/create" method="post">
                 <label for="username">Nome de Usuário</label>
                 <input type="text" id="username" name="username" required>
             </div>
@@ -74,10 +75,12 @@
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <!--
             <div class="form-group">
                 <label for="confirm-password">Confirmar Senha</label>
                 <input type="password" id="confirm-password" name="confirm-password" required>
             </div>
+            -->
             <button type="submit" class="btn">Criar Conta</button>
         </form>
     </div>

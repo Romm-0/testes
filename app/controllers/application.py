@@ -64,7 +64,7 @@ class Application:
             return self.render('portal')
             
         @self.app.route('/login', method='POST')
-        def login_getter():
+        def login_action():
             username = request.forms.get('username')
             password = request.forms.get('password')
             self.authenticate_user(username, password)

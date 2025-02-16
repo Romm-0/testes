@@ -94,9 +94,9 @@
 </head>
 <body>
     <header>
-        <div class="user-name">{{ current_user.username }}</div>
+        <div class="user-name">{{ current_user.username if current_user else 'Guest' }}</div>
         <div class="auth-buttons">
-            <form action="/login" method="get">
+            <form action="/login" method="post">
                 <button aria-label="Fazer Login">Login</button>
             </form>
             <form action="/create" method="get">

@@ -4,7 +4,7 @@ import json
 import uuid
 
 
-class PostRecord():
+class MessageRecord():
     """Banco de dados JSON para o recurso: Posts"""
 
     def __init__(self):
@@ -55,14 +55,18 @@ class UserRecord():
         self.read('super_accounts')
 
 
-    def read(self,database):
-        account_class = SuperAccount if (database == 'super_accounts' ) else UserAccount
+    def read(self, database):
+        account_class = SuperAccount if (database == 'super_accounts') else UserAccount
         try:
             with open(f"app/controllers/db/{database}.json", "r") as fjson:
                 user_d = json.load(fjson)
-                self.__allusers[database]= [account_class(**data) for data in user_d]
+                for data in user_d:
+                    if 'email' not in data:
+                        data['email'] = 'default@example.com'
+                self.__allusers[database] = [account_class(**data) for data in user_d]
         except FileNotFoundError:
-            self.__allusers[database].append(account_class('Guest', '000000'))
+            self.__allusers[database].append(account_class('Guest', '000000', 'default@example.com'))
+
 
 
     def __write(self,database):
@@ -101,10 +105,10 @@ class UserRecord():
         return None
 
 
-    def book(self, username, password, permissions):
+    def book(self, username, password, email, permissions):
         account_type = 'super_accounts' if permissions else 'user_accounts'
         account_class = SuperAccount if permissions else UserAccount
-        new_user = account_class(username, password,email, permissions) if permissions else account_class(username, password, email)
+        new_user = account_class(username, password, email, permissions) if permissions else account_class(username, password, email)
         self.__allusers[account_type].append(new_user)
         self.__write(account_type)
         return new_user.username
