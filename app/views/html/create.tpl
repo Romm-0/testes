@@ -61,9 +61,8 @@
 <body>
     <div class="container">
         <h2>Criar Conta</h2>
-        <form>
+        <form action="/create" method="post">
             <div class="form-group">
-              <form action="/create" method="post">
                 <label for="username">Nome de Usuário</label>
                 <input type="text" id="username" name="username" required>
             </div>
@@ -86,3 +85,4 @@
     </div>
 </body>
 </html>
+

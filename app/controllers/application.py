@@ -45,12 +45,6 @@ class Application:
         def portal_getter():
             return self.render('portal')
 
-        @self.app.route('/portal', method='POST')
-        def portal_action():
-            username = request.forms.get('username')
-            password = request.forms.get('password')
-            self.authenticate_user(username, password)
-
         @self.app.route('/create', method='GET')
         def create_getter():
             return self.render('create')
@@ -59,16 +53,19 @@ class Application:
         def create_action():
             username = request.forms.get('username')
             password = request.forms.get('password')
-            email = request.form.get('email')
+            email = request.forms.get('email')
             self.insert_user(username, password, email)
             return self.render('portal')
+            
+        @self.app.route('/login', method='GET')
+        def login_getter():
+            return self.render('login')
             
         @self.app.route('/login', method='POST')
         def login_action():
             username = request.forms.get('username')
             password = request.forms.get('password')
             self.authenticate_user(username, password)
-            return template('app/views/html/login')
 
         @self.app.route('/logout', method='POST')
         def logout_action():
@@ -155,8 +152,9 @@ class Application:
         if session_id:
             self.logout_user()
             response.set_cookie('session_id', session_id, httponly=True, secure=True, max_age=3600)
-            redirect('/pagina')
-        redirect('/portal')
+            redirect('/portal')
+        else:
+            return template('app/views/html/login', error_message="Invalid username or password")
 
     def delete_user(self):
         current_user = self.getCurrentUserBySessionId()
@@ -166,13 +164,13 @@ class Application:
         print(f'Valor de retorno de self.removed: {self.removed}')
         redirect('/portal')
 
-    def insert_user(self, username, password):
-        self.created= self.__users.book(username, password,[])
+    def insert_user(self, username, password, email):
+        self.created= self.__users.book(username, password, email, [])
         self.update_account_list()
         redirect('/portal')
 
-    def update_user(self, username, password):
-        self.edited = self.__users.setUser(username, password)
+    def update_user(self, username, password, email):
+        self.edited = self.__users.setUser(username, password, email)
         redirect('/portal')
 
     def logout_user(self):

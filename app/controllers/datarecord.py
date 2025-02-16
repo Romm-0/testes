@@ -81,7 +81,7 @@ class UserRecord():
 
 
 
-    def setUser(self,username,password):
+    def setUser(self,username,password,email):
         for account_type in ['user_accounts', 'super_accounts']:
             for user in self.__allusers[account_type]:
                 if username == user.username:
