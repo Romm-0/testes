@@ -1,6 +1,8 @@
-from app.controllers.datarecord import UserRecord, MessageRecord
+from app.controllers.datarecord import UserRecord, PostRecord
 from bottle import template, redirect, request, response, Bottle, static_file
 import socketio
+import json
+import uuid
 
 class Application:
 
@@ -12,7 +14,7 @@ class Application:
             'login': self.login,
         }
         self.__users = UserRecord()
-        self.__messages = MessageRecord()
+        self.__post = PostRecord()
 
         self.edited = None
         self.removed = None
@@ -71,11 +73,32 @@ class Application:
         def logout_action():
             self.logout_user()
             return self.render('portal')
+            
+        @self.app.route('/post', method='GET')
+        def post_getter(self):
+            return template('app/views/html/post')
+
+        @self.app.route('/post', method='POST')
+        def post_action(self):
+            title = request.forms.get('title')
+            content = request.forms.get('content')
+            current_user = self.getCurrentUserBySessionId()
+            
+            if title and content and current_user:
+                post = self.post(title, content, current_user.username)
+                if post:
+                    self.created = f"Post '{title}' criado com sucesso!"
+                else:
+                    self.created = "Erro ao criar o post."
+            return redirect('/portal')
         
         @self.app.route('/email', method='GET')
         def send_email():
-            mailto_link = f"mailto:{request.forms.get('email')}"
-            redirect(mailto_link)
+            email = request.query.get('email')
+            if email:
+                mailto_link = f"mailto:{email}"
+                redirect(mailto_link)
+            return "Erro: E-mail não fornecido."
 
     # método controlador de acesso às páginas:
     def render(self, page, parameter=None):
@@ -120,15 +143,48 @@ class Application:
                 error_message = "Invalid username or password"
                 return template('app/views/html/login', error_message=error_message)
         return template('app/views/html/login')
-        
+    
+    def criar_post(self, title, content, username):
+        post = {
+            "id": str(uuid.uuid4()),
+            "title": title,
+            "content": content,
+            "username": username
+        }
+
+        posts = self.carregar_posts()
+        posts.append(post)
+
+        try:
+            with open("app/controllers/db/posts.json", "w", encoding="utf-8") as f:
+                json.dump(posts, f, ensure_ascii=False, indent=4)
+            return post
+        except Exception as e:
+            print(f"Erro ao salvar post: {e}")
+            return None
+    
+    def carregar_posts(self):
+        try:
+            with open("app/controllers/db/posts.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return []
+        except json.JSONDecodeError:
+            return []
+            
     def portal(self):
         current_user = self.getCurrentUserBySessionId()
-        portal_render = template('app/views/html/portal', 
-                             current_user=current_user, 
-                             edited=self.edited, 
-                             removed=self.removed, 
-                             created=self.created)
+        posts = self.carregar_posts()
     
+        portal_render = template(
+            "app/views/html/portal", 
+            current_user=current_user, 
+            posts=posts, 
+            edited=self.edited, 
+            removed=self.removed, 
+            created=self.created
+        )
+
         self.edited = None
         self.removed = None
         self.created = None
@@ -178,25 +234,6 @@ class Application:
         self.__users.logout(session_id)
         response.delete_cookie('session_id')
         self.update_users_list()
-
-    def chat(self):
-        current_user = self.getCurrentUserBySessionId()
-        if current_user:
-            messages = self.__messages.getUsersMessages()
-            auth_users= self.__users.getAuthenticatedUsers().values()
-            return template('app/views/html/chat', current_user=current_user, \
-            messages=messages, auth_users=auth_users)
-        redirect('/portal')
-
-    def newMessage(self, message):
-        try:
-            content = message
-            current_user = self.getCurrentUserBySessionId()
-            return self.__messages.book(current_user.username, content)
-        except UnicodeEncodeError as e:
-            print(f"Encoding error: {e}")
-            return "An error occurred while processing the message."
-
 
     # Websocket:
     def setup_websocket_events(self):

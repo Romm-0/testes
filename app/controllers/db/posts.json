@@ -1,0 +1,53 @@
+[
+    {
+        "id": "unique-id-1",
+        "title": "Vendedor de açai",
+        "content": "Venha vender açai baiano.",
+        "username": "Robson",
+        "email": "teste@teste.com"
+    },
+    {
+        "id": "unique-id-2",
+        "title": "Capinar lote",
+        "content": "Para que CLT?",
+        "username": "AntiCLT",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "unique-id-3",
+        "title": "Teste",
+        "content": "Isso é um teste",
+        "username": "teste",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "unique-id-4",
+        "title": "Vendedor de livros",
+        "content": "Vender livros.",
+        "username": "Livraria cultura",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "unique-id-5",
+        "title": "Pamonha",
+        "content": "Pamonha.",
+        "username": "Pamonha",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "unique-id-6",
+        "title": "Vaga para programador",
+        "content": "Saber python, C, C++, C#, JS, CSS, HTML, Rust, PHP, mathlab, julia, e novas linguagens do mercado. Junior, salário de R$2500 + auxilios.",
+        "username": "A",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "unique-id-7",
+        "title": "Sem criatividade",
+        "content": ".",
+        "username": "B",
+        "email": "rafamelatti@gmail.com"
+    }
+]
+
+

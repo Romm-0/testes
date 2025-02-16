@@ -96,62 +96,88 @@
     <header>
         <div class="user-name">{{ current_user.username if current_user else 'Guest' }}</div>
         <div class="auth-buttons">
+% if current_user:
+            <form action="/create_post" method="get">
+                <button aria-label="Criar Post">Criar Post</button>
+            </form>
+            <form action="/profile" method="get">
+                <button aria-label="Perfil">Perfil</button>
+            </form>
+            <form action="/logout" method="post">
+                <button aria-label="Fazer Logout">Logout</button>
+            </form>
+% else:
             <form action="/login" method="get">
                 <button aria-label="Fazer Login">Login</button>
             </form>
             <form action="/create" method="get">
                 <button aria-label="Criar Conta">Criar Conta</button>
             </form>
+% end
         </div>
     </header>
     <main id="content">
+% for post in posts:
         <div class="post">
-            <div class="description">Descrição do Trabalho</div>
+            <div class="title">{{ post['title'] }}</div>
+            <div class="description">{{ post['content'] }}</div>
+            <div class="author">Publicado por: {{ post['username'] }}</div>
             <div class="actions">
                 <form action="/email" method="get">
+                    <input type="hidden" name="email" value="{{ post['email'] }}">
                     <button aria-label="Enviar Email">Enviar Email</button>
-                </form>
-                <form action="/proposta" method="post">
-                    <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
                 </form>
             </div>
         </div>
+% end
     </main>
     <script>
         let page = 1;
+        let isLoading = false;
 
-        function createPost() {
-            const post = document.createElement('div');
-            post.classList.add('post');
-            post.innerHTML = `
-                <div class="description">Descrição do Trabalho</div>
-                <div class="actions">
-                    <form action="/email" method="get">
-                        <button aria-label="Enviar Email">Enviar Email</button>
-                    </form>
-                    <form action="/proposta" method="post">
-                        <button aria-label="Aceitar Proposta">Aceitar Proposta</button>
-                    </form>
-                </div>
-            `;
-            document.getElementById('content').appendChild(post);
-        }
+        function loadPosts() {
+            if (isLoading) return;
+            isLoading = true;
 
-        for (let i = 0; i < 5; i++) {
-            createPost();
+            fetch(`/posts?page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.posts && data.posts.length > 0) {
+                        data.posts.forEach(post => {
+                            const postElement = document.createElement('div');
+                            postElement.classList.add('post');
+                            postElement.innerHTML = `
+                                <div class="title">${post.title}</div>
+                                <div class="description">${post.content}</div>
+                                <div class="author">Publicado por: ${post.username}</div>
+                                <div class="actions">
+                                    <form action="/email" method="get">
+                                        <input type="hidden" name="email" value="${post.email}">
+                                        <button aria-label="Enviar Email">Enviar Email</button>
+                                    </form>
+                                </div>
+                            `;
+                            document.getElementById('content').appendChild(postElement);
+                        });
+                        page++;
+                    }
+                    isLoading = false;
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar posts:', error);
+                    isLoading = false;
+                });
         }
 
         function checkScroll() {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             if (scrollTop + clientHeight >= scrollHeight - 5) {
-                page++;
-                for (let i = 0; i < 5; i++) {
-                    createPost();
-                }
+                loadPosts();
             }
         }
 
-        // Adiciona o evento de rolagem
+        loadPosts();
+
         window.addEventListener('scroll', checkScroll);
     </script>
 </body>

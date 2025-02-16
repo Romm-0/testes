@@ -3,45 +3,46 @@ from app.models.user_message import UserMessage
 import json
 import uuid
 
+class Post():
+    def __init__(self, id, title, content, username, email):
+        self.id = id
+        self.title = title
+        self.content = content
+        self.username = username
+        self.email = email
 
-class MessageRecord():
+class PostRecord():
     """Banco de dados JSON para o recurso: Posts"""
 
     def __init__(self):
-        self.__user_messages= []
+        self.__posts = []
         self.read()
-
 
     def read(self):
         try:
-            with open("app/controllers/db/user_messages.json", "r") as fjson:
-                user_msg = json.load(fjson)
-                self.__user_messages = [UserMessage(**msg) for msg in user_msg]
+            with open("app/controllers/db/posts.json", "r") as fjson:
+                post_data = json.load(fjson)
+                self.__posts = [Post(**post) for post in post_data]
         except FileNotFoundError:
-            print('Não existem mensagens registradas!')
-
+            print('Não existem posts registrados!')
 
     def __write(self):
         try:
-            with open("app/controllers/db/user_messages.json", "w") as fjson:
-                user_msg = [vars(user_msg) for user_msg in \
-                self.__user_messages]
-                json.dump(user_msg, fjson)
-                print(f'Arquivo gravado com sucesso (Mensagem)!')
+            with open("app/controllers/db/posts.json", "w") as fjson:
+                post_data = [vars(post) for post in self.__posts]
+                json.dump(post_data, fjson)
+                print('Posts gravados com sucesso!')
         except FileNotFoundError:
-            print('O sistema não conseguiu gravar o arquivo (Mensagem)!')
+            print('Erro ao gravar os posts!')
 
-
-    def book(self,username,content):
-        new_msg= UserMessage(username,content)
-        self.__user_messages.append(new_msg)
+    def create_post(self, title, content, username):
+        new_post = Post(title, content, username)
+        self.__posts.append(new_post)
         self.__write()
-        return new_msg
+        return new_post
 
-
-    def getUsersMessages(self):
-        return self.__user_messages
-
+    def get_posts(self):
+        return self.__posts
 
 # ------------------------------------------------------------------------------
 
