@@ -37,7 +37,7 @@
     {
         "id": "unique-id-6",
         "title": "Vaga para programador",
-        "content": "Saber python, C, C++, C#, JS, CSS, HTML, Rust, PHP, mathlab, julia, e novas linguagens do mercado. Junior, salário de R$2500 + auxilios.",
+        "content": "Usei um contador de caracteres para saber o tamanho máximo da string, deu 1016",
         "username": "A",
         "email": "rafamelatti@gmail.com"
     },
@@ -47,7 +47,26 @@
         "content": ".",
         "username": "B",
         "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "62e95b7d-fe66-428c-b844-a78453bd816b",
+        "title": "Posto ipiranga",
+        "content": "venha trabalhar no posto ipiranga",
+        "username": "Rafael",
+        "email": "r@gmail.com"
+    },
+    {
+        "id": "32bf6eb6-2142-44e8-8c11-05ed3e6fb2ae",
+        "title": "teste",
+        "content": "tsetas",
+        "username": "Rafael",
+        "email": "rafamelatti@gmail.com"
+    },
+    {
+        "id": "be4c3bbb-8009-4212-9891-8ddbf15a79a0",
+        "title": "murilo",
+        "content": "trabalhar para murilo",
+        "username": "murilo",
+        "email": "murilo@gmail.com"
     }
 ]
-
-

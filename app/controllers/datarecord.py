@@ -1,15 +1,7 @@
 from app.models.user_account import UserAccount, SuperAccount
-from app.models.user_message import UserMessage
+from app.models.user_posts import Post
 import json
 import uuid
-
-class Post():
-    def __init__(self, id, title, content, username, email):
-        self.id = id
-        self.title = title
-        self.content = content
-        self.username = username
-        self.email = email
 
 class PostRecord():
     """Banco de dados JSON para o recurso: Posts"""
@@ -36,11 +28,12 @@ class PostRecord():
             print('Erro ao gravar os posts!')
 
     def create_post(self, title, content, username):
-        new_post = Post(title, content, username)
+        current_user = self.getCurrentUserBySessionId()
+        new_post = Post(str(uuid.uuid4()), title, content, username, current_user.email)
         self.__posts.append(new_post)
         self.__write()
         return new_post
-
+    
     def get_posts(self):
         return self.__posts
 
