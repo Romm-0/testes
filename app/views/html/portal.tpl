@@ -97,7 +97,7 @@
         <div class="user-name">{{ current_user.username if current_user else 'Guest' }}</div>
         <div class="auth-buttons">
 % if current_user:
-            <form action="/create_post" method="get">
+            <form action="/post" method="get">
                 <button aria-label="Criar Post">Criar Post</button>
             </form>
             <form action="/profile" method="get">
@@ -127,6 +127,17 @@
                     <input type="hidden" name="email" value="{{ post['email'] }}">
                     <button aria-label="Enviar Email">Enviar Email</button>
                 </form>
+                % if current_user:
+                  % if current_user.username == post['username']:
+                    <form action="/edit/{{ post['id'] }}" method="get">
+                      <button type="submit" aria-label="Editar Post" style="background: #ffc107; color: #333;">Editar</button>
+                    </form>
+                  % else:
+                    <form class="accept-form" data-post-id="{{ post['id'] }}">
+                      <button type="button" aria-label="Aceitar Proposta" style="background: #ffc107; color: #333;">Aceitar Proposta</button>
+                    </form>
+                  % end
+              % end
             </div>
         </div>
 % end
@@ -135,51 +146,83 @@
         let page = 1;
         let isLoading = false;
 
-        function loadPosts() {
+        async function loadPosts() {
             if (isLoading) return;
             isLoading = true;
 
-            fetch(`/posts?page=${page}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.posts && data.posts.length > 0) {
-                        data.posts.forEach(post => {
-                            const postElement = document.createElement('div');
-                            postElement.classList.add('post');
-                            postElement.innerHTML = `
-                                <div class="title">${post.title}</div>
-                                <div class="description">${post.content}</div>
-                                <div class="author">Publicado por: ${post.username}</div>
-                                <div class="actions">
-                                    <form action="/email" method="get">
-                                        <input type="hidden" name="email" value="${post.email}">
-                                        <button aria-label="Enviar Email">Enviar Email</button>
-                                    </form>
-                                </div>
-                            `;
-                            document.getElementById('content').appendChild(postElement);
-                        });
-                        page++;
-                    }
-                    isLoading = false;
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar posts:', error);
-                    isLoading = false;
-                });
+            try {
+                const response = await fetch(`/posts?page=${page}`);
+                if (!response.ok) throw new Error('Erro ao carregar posts');
+
+                const data = await response.json();
+
+                if (data.posts && data.posts.length > 0) {
+                    data.posts.forEach(post => {
+                        const postElement = document.createElement('div');
+                        postElement.classList.add('post');
+                        postElement.innerHTML = `
+                            <div class="title">${post.title}</div>
+                            <div class="description">${post.content}</div>
+                            <div class="author">Publicado por: ${post.username}</div>
+                            <div class="actions">
+                                <form action="/email" method="get">
+                                    <input type="hidden" name="email" value="${post.email}">
+                                    <button aria-label="Enviar Email">Enviar Email</button>
+                                </form>
+                                <form class="accept-form" data-post-id="${post.id}">
+                                    <button type="button" aria-label="Aceitar Proposta" style="background: #ffc107; color: #333;">Aceitar Proposta</button>
+                                </form>
+                            </div>
+                        `;
+                        document.getElementById('content').appendChild(postElement);
+                    });
+                    page++;
+                } else {
+                    window.removeEventListener('scroll', checkScroll);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar posts:', error);
+            } finally {
+                isLoading = false;
+            }
         }
 
         function checkScroll() {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            if (scrollTop + clientHeight >= scrollHeight - 5) {
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
                 loadPosts();
             }
         }
 
-        loadPosts();
+        document.addEventListener("DOMContentLoaded", function() {
+            const acceptButtons = document.querySelectorAll('.post button[aria-label="Aceitar Proposta"]');
 
+            acceptButtons.forEach(button => {
+                button.addEventListener('click', async function(event) {
+                    const postId = event.target.closest('.accept-form').dataset.postId;
+
+                    try {
+                        const response = await fetch('/accept', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ post_id: postId })
+                        });
+                        if (!response.ok) throw new Error("Erro ao aceitar proposta");
+
+                        // Remover a proposta do DOM após a aceitação
+                        event.target.closest('.post').remove();
+                    } catch (error) {
+                        console.error("Erro ao aceitar proposta:", error);
+                    }
+                });
+            });
+        });
+
+        loadPosts();
         window.addEventListener('scroll', checkScroll);
     </script>
 </body>
 </html>
+
+
 
