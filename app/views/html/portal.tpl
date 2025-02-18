@@ -123,22 +123,34 @@
             <div class="description">{{ post['content'] }}</div>
             <div class="author">Publicado por: {{ post['username'] }}</div>
             <div class="actions">
-                <form action="/email" method="get">
+              % if current_user:
+                % if current_user.username == post['username']:
+                  <form action="/post/delete" method="post">
+                    <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                    <button type="submit" aria-label="Excluir Post" style="background: #dc3545; color: white;">Excluir</button>
+                  </form>
+                  <form action="/post/edit" method="get">
+                    <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                    <input type="hidden" name="title" value="{{ post['title'] }}">
+                    <input type="hidden" name="content" value="{{ post['content'] }}">
+                    <button type="submit" aria-label="Editar Post" style="background: #007bff; color: white;">Editar</button>
+                  </form>
+                % else:
+                  <form action="/email" method="get">
                     <input type="hidden" name="email" value="{{ post['email'] }}">
-                    <button aria-label="Enviar Email">Enviar Email</button>
+                    <button aria-label="Enviar Email" style="background: #007bff; color: white;">Enviar Email</button>
+                  </form>
+                  <form class="accept-form" data-post-id="{{ post['id'] }}">
+                    <button type="button" aria-label="Aceitar Proposta" style="background: #28a745; color: white;">Aceitar Proposta</button>
+                  </form>
+                % end
+              % else:
+                <form action="/email" method="get">
+                  <input type="hidden" name="email" value="{{ post['email'] }}">
+                  <button aria-label="Enviar Email" style="background: #007bff; color: white;">Enviar Email</button>
                 </form>
-                % if current_user:
-                  % if current_user.username == post['username']:
-                    <form action="/edit/{{ post['id'] }}" method="get">
-                      <button type="submit" aria-label="Editar Post" style="background: #ffc107; color: #333;">Editar</button>
-                    </form>
-                  % else:
-                    <form class="accept-form" data-post-id="{{ post['id'] }}">
-                      <button type="button" aria-label="Aceitar Proposta" style="background: #ffc107; color: #333;">Aceitar Proposta</button>
-                    </form>
-                  % end
               % end
-            </div>
+          </div>
         </div>
 % end
     </main>
@@ -209,7 +221,6 @@
                         });
                         if (!response.ok) throw new Error("Erro ao aceitar proposta");
 
-                        // Remover a proposta do DOM após a aceitação
                         event.target.closest('.post').remove();
                     } catch (error) {
                         console.error("Erro ao aceitar proposta:", error);
@@ -223,6 +234,3 @@
     </script>
 </body>
 </html>
-
-
-

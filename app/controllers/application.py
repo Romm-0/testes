@@ -49,6 +49,15 @@ class Application:
         @self.app.route('/create', method='GET')
         def create_getter():
             return self.render('create')
+            
+        @self.app.route('/profile', method='GET')
+        def profile_getter():
+            current_user = self.getCurrentUserBySessionId()
+            if not current_user:
+                return redirect('/portal')
+            posts = self.carregar_posts()
+            user_posts = [post for post in posts if post["username"] == current_user.username]
+            return template('app/views/html/profile', current_user=current_user, posts=user_posts, is_profile_page=True)
 
         @self.app.route('/create', method='POST')
         def create_action():
@@ -81,16 +90,48 @@ class Application:
         def post_action():
             title = request.forms.get('title')
             content = request.forms.get('content')
+            post_id = request.forms.get('post_id')
             current_user = self.getCurrentUserBySessionId()
             email = self.get_user_email(current_user)
             
             if title and content and current_user:
-                post = self.criar_post(title, content, current_user.username)
-                if post:
-                    self.created = f"Post '{title}' criado com sucesso!"
+                if post_id:
+                    post = self.atualizar_post(post_id, title, content, current_user.username)
+                    if post:
+                        self.edited = f"Post '{title}' atualizado com sucesso!"
+                    else:
+                        self.edited = "Erro ao atualizar o post."
                 else:
-                    self.created = "Erro ao criar o post."
+                    post = self.criar_post(title, content, current_user.username)
+                    if post:
+                        self.created = f"Post '{title}' criado com sucesso!"
+                    else:
+                        self.created = "Erro ao criar o post."
             return redirect('/portal')
+            
+        @self.app.route('/post/delete', method='POST')
+        def delete_post_action():
+            post_id = request.forms.get('post_id')
+            if post_id:
+                mensagem = self.excluir_post(post_id)
+                return redirect('/portal')
+            return "Erro: ID do post não fornecido."
+            
+        @self.app.route('/post/edit', method='GET')
+        def edit_post_getter():
+            post_id = request.query.get('post_id')
+            if not post_id:
+                return "Erro: ID do post não fornecido." 
+            posts = self.carregar_posts()
+            post = next((p for p in posts if p["id"] == post_id), None)
+            if not post:
+                return "Erro: Post não encontrado."
+    
+            current_user = self.getCurrentUserBySessionId()
+            if post["username"] != current_user.username:
+                return "Erro: Você não tem permissão para editar este post."
+    
+            return template('app/views/html/create_post', post=post)
         
         @self.app.route('/email', method='GET')
         def send_email():
@@ -101,11 +142,9 @@ class Application:
             return "Erro: E-mail não fornecido."
 
     # Método controlador de acesso às páginas:
-    def render(self, page, parameter=None):
+    def render(self, page, **kwargs):
         content = self.pages.get(page, self.portal)
-        if not parameter:
-            return content()
-        return content(parameter)
+        return content(**kwargs)
 
     # Métodos controladores de páginas
     def getAuthenticatedUsers(self):
@@ -179,9 +218,47 @@ class Application:
         except json.JSONDecodeError:
             return []
             
-    def portal(self):
+    def excluir_post(self, post_id):
         current_user = self.getCurrentUserBySessionId()
+        if not current_user:
+            return "Erro: Usuário não autenticado."
         posts = self.carregar_posts()
+        post_encontrado = None
+        for post in posts:
+            if post["id"] == post_id and post["username"] == current_user.username:
+                post_encontrado = post
+                break
+        if not post_encontrado:
+            return "Erro: Post não encontrado ou você não tem permissão para excluí-lo."
+        posts.remove(post_encontrado)
+
+        try:
+            with open("app/controllers/db/posts.json", "w", encoding="utf-8") as f:
+                json.dump(posts, f, ensure_ascii=False, indent=4)
+            self.removed = f"Post '{post_encontrado['title']}' removido com sucesso!"
+            return self.removed
+        except Exception as e:
+            print(f"Erro ao excluir post: {e}")
+            return "Erro ao excluir post."
+            
+    def atualizar_post(self, post_id, title, content, username):
+        posts = self.carregar_posts()
+        for idx, post in enumerate(posts):
+            if post["id"] == post_id and post["username"] == username:
+                posts[idx]["title"] = title
+                posts[idx]["content"] = content
+                try:
+                    with open("app/controllers/db/posts.json", "w", encoding="utf-8") as f:
+                        json.dump(posts, f, ensure_ascii=False, indent=4)
+                    return posts[idx]
+                except Exception as e:
+                    print(f"Erro ao atualizar post: {e}")
+                    return None
+        return None
+            
+    def portal(self, current_user=None, posts=None):
+        current_user = current_user or self.getCurrentUserBySessionId()
+        posts = posts or self.carregar_posts()
     
         portal_render = template(
             "app/views/html/portal", 
@@ -241,7 +318,6 @@ class Application:
         self.__users.logout(session_id)
         response.delete_cookie('session_id')
 
-    # Métodos _dummy_ para atualizar listas (defina a lógica conforme necessário)
     def update_account_list(self):
         # Atualize a lista de contas de usuário, se necessário
         pass
@@ -273,4 +349,3 @@ class Application:
                     print(f"Post '{title}' criado com sucesso!")
                 else:
                     print("Erro ao criar o post.")
-

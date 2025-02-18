@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Novo Post</title>
+    <title id="form-title">Criar Novo Post</title>
     <style>
         * {
             margin: 0;
@@ -74,8 +74,10 @@
 </head>
 <body>
     <div class="container">
-        <h2>Criar Novo Post</h2>
+        <h2 id="form-header">Criar Novo Post</h2>
         <form id="create-post-form" action="/post" method="POST">
+            <input type="hidden" id="post_id" name="post_id" value="">
+
             <div class="form-group">
                 <label for="title">Título do Post</label>
                 <input type="text" id="title" name="title" required maxlength="1000">
@@ -86,10 +88,27 @@
                 <small>Limite de 1000 caracteres</small>
             </div>
             <div class="form-group">
-                <button type="submit">Criar Post</button>
+                <button type="submit" id="submit-button">Criar Post</button>
             </div>
         </form>
     </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('post_id');
+        const postTitle = urlParams.get('title');
+        const postContent = urlParams.get('content');
+
+        if (postId) {
+            document.getElementById('form-title').textContent = "Editar Post";
+            document.getElementById('form-header').textContent = "Editar Post";
+            document.getElementById('post_id').value = postId;
+            document.getElementById('title').value = postTitle || "";
+            document.getElementById('content').value = postContent || "";
+            document.getElementById('submit-button').textContent = "Atualizar Post";
+        }
+    </script>
 </body>
 </html>
+
 
