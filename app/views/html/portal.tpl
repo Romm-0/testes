@@ -140,8 +140,9 @@
                     <input type="hidden" name="email" value="{{ post['email'] }}">
                     <button aria-label="Enviar Email" style="background: #007bff; color: white;">Enviar Email</button>
                   </form>
-                  <form class="accept-form" data-post-id="{{ post['id'] }}">
-                    <button type="button" aria-label="Aceitar Proposta" style="background: #28a745; color: white;">Aceitar Proposta</button>
+                  <form action="/post/accept" method="get">
+                    <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                    <button type="submit" aria-label="Aceitar Proposta" style="background: #28a745; color: white;">Aceitar Proposta</button>
                   </form>
                 % end
               % else:

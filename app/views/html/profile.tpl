@@ -100,15 +100,9 @@
         <form action="/post" method="get">
             <button aria-label="Criar Post">Criar Post</button>
         </form>
-        % if is_profile_page:
-            <form action="/portal" method="get">
-                <button aria-label="Portal">Portal</button>
-            </form>
-        % else:
-            <form action="/profile" method="get">
-                <button aria-label="Perfil">Perfil</button>
-            </form>
-        % end
+        <form action="/portal" method="get">
+            <button aria-label="Portal">Portal</button>
+        </form>
         <form action="/logout" method="post">
             <button aria-label="Fazer Logout">Logout</button>
         </form>

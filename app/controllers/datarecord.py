@@ -14,7 +14,11 @@ class PostRecord():
         try:
             with open("app/controllers/db/posts.json", "r") as fjson:
                 post_data = json.load(fjson)
-                self.__posts = [Post(**post) for post in post_data]
+                valid_keys = ('id', 'title', 'content', 'username', 'email')
+            self.__posts = [
+                Post(**{k: v for k, v in post.items() if k in valid_keys})
+                for post in post_data
+            ]
         except FileNotFoundError:
             print('Não existem posts registrados!')
 
@@ -22,7 +26,7 @@ class PostRecord():
         try:
             with open("app/controllers/db/posts.json", "w") as fjson:
                 post_data = [vars(post) for post in self.__posts]
-                json.dump(post_data, fjson)
+                json.dump(post_data, fjson, ensure_ascii=False, indent=4)
                 print('Posts gravados com sucesso!')
         except FileNotFoundError:
             print('Erro ao gravar os posts!')
@@ -36,6 +40,15 @@ class PostRecord():
     
     def get_posts(self):
         return self.__posts
+        
+    def accept_post(self, post_id, owner):
+        self.read() #evita que os posts continuem na memoria, nao mudar!
+        for post in self.__posts:
+            if post.id == post_id:
+                post.owner = owner
+                self.__write()
+                return post
+        return None
 
 # ------------------------------------------------------------------------------
 

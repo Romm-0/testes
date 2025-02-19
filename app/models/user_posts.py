@@ -5,3 +5,4 @@ class Post():
         self.content = content
         self.username = username
         self.email = email
+        self.owner = username

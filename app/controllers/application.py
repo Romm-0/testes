@@ -107,15 +107,14 @@ class Application:
                         self.created = f"Post '{title}' criado com sucesso!"
                     else:
                         self.created = "Erro ao criar o post."
-            return redirect('/portal')
+            return self.render('portal')
             
         @self.app.route('/post/delete', method='POST')
         def delete_post_action():
             post_id = request.forms.get('post_id')
             if post_id:
                 mensagem = self.excluir_post(post_id)
-                return redirect('/portal')
-            return "Erro: ID do post não fornecido."
+            return self.render('portal')
             
         @self.app.route('/post/edit', method='GET')
         def edit_post_getter():
@@ -126,12 +125,19 @@ class Application:
             post = next((p for p in posts if p["id"] == post_id), None)
             if not post:
                 return "Erro: Post não encontrado."
-    
             current_user = self.getCurrentUserBySessionId()
             if post["username"] != current_user.username:
                 return "Erro: Você não tem permissão para editar este post."
-    
             return template('app/views/html/create_post', post=post)
+                
+        @self.app.route('/post/accept', method='GET')
+        def post_accept():
+            post_id = request.query.get('post_id')
+            current_user = self.getCurrentUserBySessionId()
+            post = self.__post.accept_post(post_id, current_user.username)
+            if not post:
+                return "Erro: post nao encontrado"
+            return self.render('portal')
         
         @self.app.route('/email', method='GET')
         def send_email():
@@ -195,7 +201,8 @@ class Application:
             "title": title,
             "content": content,
             "username": username,
-            "email" : email
+            "email" : email,
+            "owner" : username
         }
 
         posts = self.carregar_posts()

@@ -1,86 +1,18 @@
 [
     {
-        "id": "unique-id-2",
-        "title": "Capinar lote",
-        "content": "Para que CLT?",
-        "username": "A",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "unique-id-3",
-        "title": "Teste",
-        "content": "Isso é um teste",
+        "id": "b7ca3d02-734d-469b-9f16-3f9c3e6fce00",
+        "title": "dasdas",
+        "content": "adasddas",
         "username": "teste",
-        "email": "rafamelatti@gmail.com"
+        "email": "teste@teste.com",
+        "owner": "Rafael"
     },
     {
-        "id": "unique-id-4",
-        "title": "Vendedor de livros",
-        "content": "Vender livros.",
-        "username": "Livraria cultura",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "unique-id-5",
-        "title": "Pamonha",
-        "content": "Pamonha.",
-        "username": "Pamonha",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "unique-id-6",
-        "title": "Vaga para programador",
-        "content": "Usei um contador de caracteres para saber o tamanho máximo da string, deu 1016",
-        "username": "A",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "unique-id-7",
-        "title": "Sem criatividade",
-        "content": ".",
-        "username": "B",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "62e95b7d-fe66-428c-b844-a78453bd816b",
-        "title": "Posto petrobras",
-        "content": "venha trabalhar no posto petrobras",
+        "id": "e669c879-cf28-4546-b081-a2b1a8835727",
+        "title": "pao",
+        "content": "ja deu",
         "username": "Rafael",
-        "email": "r@gmail.com"
-    },
-    {
-        "id": "32bf6eb6-2142-44e8-8c11-05ed3e6fb2ae",
-        "title": "teste",
-        "content": "tsetas",
-        "username": "Rafael",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "be4c3bbb-8009-4212-9891-8ddbf15a79a0",
-        "title": "murilo",
-        "content": "trabalhar para murilo",
-        "username": "murilo",
-        "email": "murilo@gmail.com"
-    },
-    {
-        "id": "913dce88-1ef5-404a-81ba-29a3f5ba96f9",
-        "title": "Ja deu",
-        "content": "contrata-se alunos de OO para finalizar o meu projeto",
-        "username": "Rafael",
-        "email": "rafamelatti@gmail.com"
-    },
-    {
-        "id": "ed3c61a0-fb97-4457-9700-b55fee8feaa3",
-        "title": "teste2",
-        "content": "testado",
-        "username": "teste2",
-        "email": "teste@teste.com"
-    },
-    {
-        "id": "d0c1c1d8-df6a-46e8-b233-f2442d2f2fe4",
-        "title": "teste de rolagem",
-        "content": "rola,gem",
-        "username": "Rafael",
-        "email": "rafamelatti@gmail.com"
+        "email": "rafamelatti@gmail.com",
+        "owner": "Rafael"
     }
 ]
