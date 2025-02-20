@@ -56,7 +56,7 @@ class Application:
             if not current_user:
                 return redirect('/portal')
             posts = self.carregar_posts()
-            user_posts = [post for post in posts if post["username"] == current_user.username]
+            user_posts = [post for post in posts if post["username"] == current_user.username or post["owner"] == current_user.username]
             return template('app/views/html/profile', current_user=current_user, posts=user_posts, is_profile_page=True)
 
         @self.app.route('/create', method='POST')

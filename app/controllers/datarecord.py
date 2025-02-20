@@ -15,6 +15,7 @@ class PostRecord():
             with open("app/controllers/db/posts.json", "r") as fjson:
                 post_data = json.load(fjson)
                 valid_keys = ('id', 'title', 'content', 'username', 'email')
+            self.__posts = []
             self.__posts = [
                 Post(**{k: v for k, v in post.items() if k in valid_keys})
                 for post in post_data
@@ -42,7 +43,6 @@ class PostRecord():
         return self.__posts
         
     def accept_post(self, post_id, owner):
-        self.read() #evita que os posts continuem na memoria, nao mudar!
         for post in self.__posts:
             if post.id == post_id:
                 post.owner = owner

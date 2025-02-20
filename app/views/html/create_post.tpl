@@ -80,7 +80,8 @@
 
             <div class="form-group">
                 <label for="title">Título do Post</label>
-                <input type="text" id="title" name="title" required maxlength="1000">
+                <input type="text" id="title" name="title" required maxlength="40">
+                <small>Limite de 40 caracteres</small>
             </div>
             <div class="form-group">
                 <label for="content">Conteúdo</label>

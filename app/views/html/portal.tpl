@@ -71,6 +71,10 @@
             color: #333;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
+        .post .title {
+          font-size: 1.4em;
+          font-weight: bold;
+        }
         .post .description {
             flex-grow: 1;
         }
@@ -118,6 +122,7 @@
     </header>
     <main id="content">
 % for post in posts:
+  % if post['username'] == post['owner']:
         <div class="post">
             <div class="title">{{ post['title'] }}</div>
             <div class="description">{{ post['content'] }}</div>
@@ -153,6 +158,7 @@
               % end
           </div>
         </div>
+  % end
 % end
     </main>
     <script>
