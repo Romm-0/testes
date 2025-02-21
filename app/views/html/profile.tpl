@@ -81,6 +81,7 @@
     .post .actions {
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
     .post button {
       padding: 8px 15px;
@@ -93,6 +94,11 @@
     }
     .post button:hover {
       background: #218838;
+    }
+    .accepted {
+      font-weight: bold;
+      color: green;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -127,21 +133,32 @@
         <div class="description">{{ post['content'] }}</div>
         <div class="author">Publicado por: {{ post['username'] }}</div>
         <div class="actions">
-          <form action="/post/delete" method="post">
-            <input type="hidden" name="post_id" value="{{ post['id'] }}">
-            <button type="submit" aria-label="Excluir Post" style="background: #dc3545; color: white;">Excluir</button>
-          </form>
-          <form action="/post/edit" method="get">
-            <input type="hidden" name="post_id" value="{{ post['id'] }}">
-            <input type="hidden" name="title" value="{{ post['title'] }}">
-            <input type="hidden" name="content" value="{{ post['content'] }}">
-            <button type="submit" aria-label="Editar Post" style="background: #007bff; color: white;">Editar</button>
-          </form>
+        % if current_user.username == post['username']:
+            <form action="/post/delete" method="post">
+              <input type="hidden" name="post_id" value="{{ post['id'] }}">
+              <button type="submit" aria-label="Excluir Post" style="background: #dc3545; color: white;">Excluir</button>
+            </form>
+            <form action="/post/edit" method="get">
+              <input type="hidden" name="post_id" value="{{ post['id'] }}">
+              <input type="hidden" name="title" value="{{ post['title'] }}">
+              <input type="hidden" name="content" value="{{ post['content'] }}">
+              <button type="submit" aria-label="Editar Post" style="background: #007bff; color: white;">Editar</button>
+            </form>
+        % else:
+            <form action="/email" method="get">
+              <input type="hidden" name="email" value="{{ post['email'] }}">
+              <button aria-label="Enviar Email" style="background: #007bff; color: white;">Enviar Email</button>
+            </form>
+            <div class="accepted">Post aceito</div>
+        % end
         </div>
       </div>
   % end
   </main>
+  <!-- Variável global para identificar o usuário logado -->
   <script>
+    var currentUser = "{{ current_user.username if current_user else '' }}";
+    
     let page = 1;
     let isLoading = false;
 
@@ -159,11 +176,10 @@
           data.posts.forEach(post => {
             const postElement = document.createElement('div');
             postElement.classList.add('post');
-            postElement.innerHTML = `
-              <div class="title">${post.title}</div>
-              <div class="description">${post.content}</div>
-              <div class="author">Publicado por: ${post.username}</div>
-              <div class="actions">
+            
+            let actionsHtml = '';
+            if (currentUser === post.username) {
+              actionsHtml = `
                 <form action="/post/delete" method="post">
                   <input type="hidden" name="post_id" value="${post.id}">
                   <button type="submit" aria-label="Excluir Post" style="background: #dc3545; color: white;">Excluir</button>
@@ -174,6 +190,23 @@
                   <input type="hidden" name="content" value="${post.content}">
                   <button type="submit" aria-label="Editar Post" style="background: #007bff; color: white;">Editar</button>
                 </form>
+              `;
+            } else {
+              actionsHtml = `
+                <form action="/email" method="get">
+                  <input type="hidden" name="email" value="${post.email}">
+                  <button aria-label="Enviar Email" style="background: #007bff; color: white;">Enviar Email</button>
+                </form>
+                <div class="accepted">Post aceito</div>
+              `;
+            }
+
+            postElement.innerHTML = `
+              <div class="title">${post.title}</div>
+              <div class="description">${post.content}</div>
+              <div class="author">Publicado por: ${post.username}</div>
+              <div class="actions">
+                ${actionsHtml}
               </div>
             `;
             document.getElementById('content').appendChild(postElement);
@@ -203,3 +236,4 @@
   </script>
 </body>
 </html>
+

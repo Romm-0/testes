@@ -15,7 +15,7 @@ class PostRecord():
             with open("app/controllers/db/posts.json", "r") as fjson:
                 post_data = json.load(fjson)
                 valid_keys = ('id', 'title', 'content', 'username', 'email')
-            self.__posts = []
+            self.__posts.clear
             self.__posts = [
                 Post(**{k: v for k, v in post.items() if k in valid_keys})
                 for post in post_data
@@ -44,7 +44,9 @@ class PostRecord():
         
     def accept_post(self, post_id, owner):
         for post in self.__posts:
+            print(f"Verificando post: {post.id}")
             if post.id == post_id:
+                print(f"Post encontrado. Atualizando owner para {owner}")
                 post.owner = owner
                 self.__write()
                 return post
