@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Não posso usar checkbox direto, ent vou testar isso aqui antes e e ver se aparece ou se precisa de um input
-  - type: checkbox
+  - type: checkboxes
     id: prioridade
     attributes:
       label: Selecione o nível de urgência dessa issue
