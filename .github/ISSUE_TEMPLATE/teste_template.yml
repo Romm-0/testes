@@ -2,6 +2,10 @@ name: Template
 description: Preencher
 title: " preencher "
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Não posso usar checkbox direto, ent vou testar isso aqui antes e e ver se aparece ou se precisa de um input
   - type: checkbox
     id: prioridade
     attributes:
