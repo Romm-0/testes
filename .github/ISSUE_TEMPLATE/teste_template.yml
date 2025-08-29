@@ -1,6 +1,6 @@
-name: "Nova tarefa"
+name: "Nova issue"
 description: "Template para criação de uma nova issue"
-title: "[Tarefa] <inserir título aqui>"
+title: "[Inserir "Conventional Commits names" aqui] <inserir título aqui>"
 labels: []
 assignees: []
 
@@ -10,7 +10,7 @@ body:
     attributes:
       label: "Título da tarefa"
       description: "Informe um título curto e objetivo"
-      placeholder: "Ex: Implementar autenticação JWT"
+      placeholder: "Ex: Adicionar uma template para issues"
     validations:
       required: true
 
@@ -19,7 +19,7 @@ body:
     attributes:
       label: "Descrição"
       description: "Explique o que precisa ser feito"
-      placeholder: "Detalhes da tarefa..."
+      placeholder: "Em formato de lista Ex: -Afazer 1"
     validations:
       required: true
 
@@ -41,6 +41,6 @@ body:
     attributes:
       label: "Formas de comprovar a conclusão"
       description: "Liste como será possível verificar que a tarefa foi concluída"
-      placeholder: "Ex: Prints de tela, testes passando, logs de execução..."
+      placeholder: "Ex: Prints de tela, testes passando, logs de execução (tambémem formato de lista)"
     validations:
       required: true
