@@ -1,17 +1,46 @@
-name: Template
-description: Preencher
-title: " preencher "
+name: "Nova tarefa"
+description: "Template para criação de uma nova issue"
+title: "[Tarefa] <inserir título aqui>"
+labels: []
+assignees: []
+
 body:
-  - type: markdown
+  - type: input
+    id: titulo
     attributes:
-      value: |
-        Não posso usar checkbox direto, ent vou testar isso aqui antes e e ver se aparece ou se precisa de um input
+      label: "Título da tarefa"
+      description: "Informe um título curto e objetivo"
+      placeholder: "Ex: Implementar autenticação JWT"
+    validations:
+      required: true
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: "Descrição"
+      description: "Explique o que precisa ser feito"
+      placeholder: "Detalhes da tarefa..."
+    validations:
+      required: true
+
   - type: checkboxes
     id: prioridade
     attributes:
-      label: Selecione o nível de urgência dessa issue
-      description:
-       - label: Baixa
-       - label: Média
-       - label: Alta
-       - label: Crítica
+      label: "Prioridade"
+      description: "Selecione o nível de prioridade"
+      options:
+        - label: "Crítica"
+        - label: "Alta"
+        - label: "Média"
+        - label: "Baixa"
+    validations:
+      required: true
+
+  - type: textarea
+    id: comprovacao
+    attributes:
+      label: "Formas de comprovar a conclusão"
+      description: "Liste como será possível verificar que a tarefa foi concluída"
+      placeholder: "Ex: Prints de tela, testes passando, logs de execução..."
+    validations:
+      required: true
