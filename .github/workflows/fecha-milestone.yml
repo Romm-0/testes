@@ -2,57 +2,58 @@ name: Fechar milestones vencidas
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # Executa todo dia as zero hora do horario de Brasilia
+    - cron: "0 3 * * *" # 00:00 Brasilia
   workflow_dispatch:
 
 permissions:
-  contents: write
   issues: write
 
 jobs:
-  fechar-milestones-vencidas:
+  fechar-milestones:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Configurar data atual em Brasília (UTC-3)
-        id: data
-        run: |
-          # Data de hoje no horário de Brasília (UTC-3)
-          TODAY=$(date -u -d "-3 hours" +%Y-%m-%d)
-          echo "today=$TODAY" >> $GITHUB_OUTPUT
+      - name: Fechar milestones e issues vencidas
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const now = new Date();
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
 
-      - name: Fechar milestones vencidas e suas issues
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          TODAY: ${{ steps.data.outputs.today }}
-        run: |
-          echo "Data atual (Brasília): $TODAY"
+            const milestones = await github.paginate(
+              github.rest.issues.listMilestones,
+              { owner, repo, state: 'open', per_page: 100 }
+            );
 
-          # Lista milestones abertas (usando separador de tabulação para preservar títulos com espaços)
-          gh api repos/$REPO/milestones \
-            --paginate \
-            --jq '.[] | select(.state=="open") | [.number, .title, .due_on] | @tsv' |
-          while IFS=$'\t' read -r NUMBER TITLE DUE_ON; do
-            DUE_DATE=$(echo $DUE_ON | cut -d'T' -f1)
-            if [[ "$DUE_DATE" < "$TODAY" || "$DUE_DATE" = "$TODAY" ]]; then
-              echo "============================================"
-              echo "Milestone \"$TITLE\" (#$NUMBER) está vencida ($DUE_DATE)."
-              echo "Fechando issues abertas desta milestone..."
+            const expiradas = milestones.filter(m => m.due_on && new Date(m.due_on) < now);
 
-              # Fecha todas as issues abertas da milestone
-              gh api repos/$REPO/issues \
-                -f state=open \
-                -f milestone=$NUMBER \
-                --paginate \
-                --jq '.[].number' |
-              while read ISSUE; do
-                echo "→ Fechando issue #$ISSUE"
-                gh api -X PATCH repos/$REPO/issues/$ISSUE -f state=closed > /dev/null
-              done
+            for (const milestone of expiradas) {
+              core.info(`Fechando milestone #${milestone.number} - ${milestone.title}`);
 
-              # Fecha a milestone (agora com o título preservado)
-              echo "→ Fechando milestone \"$TITLE\" (#$NUMBER)"
-              gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed -f title="$TITLE" > /dev/null
-            fi
-          done
+              await github.rest.issues.updateMilestone({
+                owner,
+                repo,
+                milestone_number: milestone.number,
+                state: 'closed'
+              });
+
+              const issues = await github.paginate(
+                github.rest.issues.listForRepo,
+                { owner, repo, state: 'open', milestone: milestone.number, per_page: 100 }
+              );
+
+              for (const issue of issues) {
+                core.info(`Fechando issue #${issue.number} vinculada à milestone #${milestone.number}`);
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              }
+            }
+
+            if (!expiradas.length) {
+              core.info('Nenhuma milestone vencida encontrada.');
+            }
