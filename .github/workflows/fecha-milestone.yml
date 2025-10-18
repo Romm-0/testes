@@ -1,8 +1,8 @@
-name: Fechar Milestones
+name: Fechar milestones vencidas
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # Executa todo dia 00h Brasília (UTC+3)
+    - cron: '0 3 * * *'  # 00h Brasília (UTC+3)
   workflow_dispatch:
 
 permissions:
@@ -10,36 +10,50 @@ permissions:
   issues: write
 
 jobs:
-  fechar-milestones:
+  fechar-milestones-vencidas:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Ajusta a data atual para UTC-3 (Brasília)
+      - name: Configurar data atual em Brasília (UTC-3)
+        id: data
         run: |
+          # Data de hoje no horário de Brasília (UTC-3)
           TODAY=$(date -u -d "-3 hours" +%Y-%m-%d)
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
+
+      - name: Fechar milestones vencidas e suas issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TODAY: ${{ steps.data.outputs.today }}
+        run: |
           echo "Data atual (Brasília): $TODAY"
 
+          # Lista milestones abertas
           gh api repos/$REPO/milestones \
             --paginate \
             -q '.[] | select(.state=="open") | "\(.number) \(.title) \(.due_on)"' |
           while read NUMBER TITLE DUE_ON; do
             DUE_DATE=$(echo $DUE_ON | cut -d'T' -f1)
-            if [ "$DUE_DATE" = "$TODAY" ]; then
-              echo "Milestone \"$TITLE\" (#$NUMBER) vence hoje ($DUE_DATE). Fechando issues..."
+            if [[ "$DUE_DATE" < "$TODAY" || "$DUE_DATE" = "$TODAY" ]]; then
+              echo "============================================"
+              echo "Milestone \"$TITLE\" (#$NUMBER) está vencida ($DUE_DATE)."
+              echo "Fechando issues abertas desta milestone..."
 
+              # Fecha todas as issues abertas da milestone
               gh api repos/$REPO/issues \
                 -f state=open \
                 -f milestone=$NUMBER \
                 --paginate \
                 -q '.[] | .number' |
               while read ISSUE; do
-                echo "Fechando issue #$ISSUE"
-                gh api -X PATCH repos/$REPO/issues/$ISSUE -f state=closed
+                echo "→ Fechando issue #$ISSUE"
+                gh api -X PATCH repos/$REPO/issues/$ISSUE -f state=closed > /dev/null
               done
 
-              echo "Fechando milestone \"$TITLE\""
-              gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed
+              # Fecha a milestone
+              echo "→ Fechando milestone \"$TITLE\" (#$NUMBER)"
+              gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed > /dev/null
             fi
           done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: Romm-0/testes
+
