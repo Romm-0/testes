@@ -53,7 +53,7 @@ jobs:
 
               # Fecha a milestone
               echo "→ Fechando milestone \"$TITLE\" (#$NUMBER)"
-              gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed > /dev/null
+              gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed -f title="$TITLE" > /dev/null
             fi
           done
 
