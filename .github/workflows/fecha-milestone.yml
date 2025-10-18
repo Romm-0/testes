@@ -2,7 +2,7 @@ name: Fechar milestones vencidas
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # 00h Brasília (UTC+3)
+    - cron: '0 3 * * *'  # Executa todo dia as zero hora do horario de Brasilia
   workflow_dispatch:
 
 permissions:
@@ -29,11 +29,11 @@ jobs:
         run: |
           echo "Data atual (Brasília): $TODAY"
 
-          # Lista milestones abertas
+          # Lista milestones abertas (usando separador de tabulação para preservar títulos com espaços)
           gh api repos/$REPO/milestones \
             --paginate \
-            -q '.[] | select(.state=="open") | "\(.number) \(.title) \(.due_on)"' |
-          while read NUMBER TITLE DUE_ON; do
+            --jq '.[] | select(.state=="open") | [.number, .title, .due_on] | @tsv' |
+          while IFS=$'\t' read -r NUMBER TITLE DUE_ON; do
             DUE_DATE=$(echo $DUE_ON | cut -d'T' -f1)
             if [[ "$DUE_DATE" < "$TODAY" || "$DUE_DATE" = "$TODAY" ]]; then
               echo "============================================"
@@ -45,15 +45,14 @@ jobs:
                 -f state=open \
                 -f milestone=$NUMBER \
                 --paginate \
-                -q '.[] | .number' |
+                --jq '.[].number' |
               while read ISSUE; do
                 echo "→ Fechando issue #$ISSUE"
                 gh api -X PATCH repos/$REPO/issues/$ISSUE -f state=closed > /dev/null
               done
 
-              # Fecha a milestone
+              # Fecha a milestone (agora com o título preservado)
               echo "→ Fechando milestone \"$TITLE\" (#$NUMBER)"
               gh api -X PATCH repos/$REPO/milestones/$NUMBER -f state=closed -f title="$TITLE" > /dev/null
             fi
           done
-
